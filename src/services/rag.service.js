@@ -56,3 +56,54 @@ async function ingestDocs() {
 
     return { message: `Ingested ${articles.length} articles with chunking` };
 }
+
+async function chat(sessionId, userQuery) {
+    const start = Date.now();
+
+    const historyKey = `history:${sessionId}`;
+    const pastHistory = await redisClient.get(historyKey) || "";
+
+    const queryEmbedding = await getEmbedding(userQuery);
+
+    const searchResults = await qdrantClient.search(COLLECTION_NAME, {
+        vector: queryEmbedding,
+        limit: 5
+    });
+
+    const context = searchResults.map(r => r.payload.text)
+    .join("\n\n");
+
+    const prompt = `
+    You are a news assistant. Answer ONLY using the context below.
+
+    CONTEXT:
+    ${context}
+
+    CHAT HISTORY:
+    ${pastHistory}
+
+    QUESTION:
+    ${userQuery}
+    `;
+
+    const result = await model.generateContent(prompt);
+    const answer = result.response.text();
+
+    await redisClient.setEx(
+        historyKey,
+        3600,
+        `${pastHistory}\nUser: ${userQuery}\nAI: ${answer}`
+    );
+
+    return answer;
+}
+
+async function getHistory(sessionId) {
+    return await redisClient.get(`history:${sessionId}`);
+}
+
+async function clearHistory(sessionId) {
+  await redisClient.del(`history:${sessionId}`);
+}
+
+export const { ingestDocs, chat, getHistory, clearHistory };
