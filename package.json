@@ -1,0 +1,20 @@
+{
+  "name": "rag-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "type": "module",
+  "author": "Priyanshu",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@qdrant/js-client-rest": "^1.16.2",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "pg": "^8.16.3",
+    "redis": "^5.10.0"
+  }
+}
