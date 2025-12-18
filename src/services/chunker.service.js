@@ -1,18 +1,14 @@
-export const chunkText = function chunkText(text, chunkSize = 300, overlap = 50) {
-
+export function chunkText(text, chunkSize = 300, overlap = 50) {
     const words = text.split(" ");
     const chunks = [];
 
-    let i = 0;
-    while(i < words.length) {
-        const end = i + chunkSize;
-        const chunk = words.slice(i, end).join(" ");
+    let start = 0;
+    while (start < words.length) {
+        const end = start + chunkSize;
+        const chunk = words.slice(start, end).join(" ");
         chunks.push(chunk);
-        
-        i = end - overlap;
-        if(i < 0) {
-            i = 0;
-        }
+        start = end - overlap;
+        if (start < 0) start = 0;
     }
 
     return chunks;
